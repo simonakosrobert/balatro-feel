@@ -5,29 +5,44 @@ using UnityEngine.UI;
 public class ShaderCode : MonoBehaviour
 {
 
-    Image image;
-    Material m;
+    public Image image;
+    public Material m;
     CardVisual visual;
-
+    [SerializeField] private GameObject Gameplayinfo;
+    private Sprite[] cards;
+    private string suit;
+    private string rank;
+    
     // Start is called before the first frame update
     void Start()
-    {
-        image = GetComponent<Image>();
-        m = new Material(image.material);
-        image.material = m;
-        visual = GetComponentInParent<CardVisual>();
+    {   
 
-        string[] editions = new string[4];
-        editions[0] = "REGULAR";
-        editions[1] = "POLYCHROME";
-        editions[2] = "REGULAR";
-        editions[3] = "NEGATIVE";
+        GameObject greatGrandParent = transform.parent.parent.parent.gameObject;
+        Gameplayinfo = GameObject.Find("GameplayInfo");
+        suit = greatGrandParent.GetComponent<CardVisual>().suit;
+        rank = greatGrandParent.GetComponent<CardVisual>().rank;
 
-        for (int i = 0; i < image.material.enabledKeywords.Length; i++)
-        {
-            image.material.DisableKeyword(image.material.enabledKeywords[i]);
-        }
-        image.material.EnableKeyword("_EDITION_" + editions[Random.Range(0, editions.Length)]);
+        cards = Resources.LoadAll<Sprite>("pokercards");
+
+        GetComponent<Image>().sprite = cards[Gameplayinfo.GetComponent<GameplayInfo>().pokerCardsDict[$"{suit} {rank}"]];
+
+        //image = GetComponent<Image>();
+        //m = new Material(image.material);
+        //image.material = m;
+        // visual = GetComponentInParent<CardVisual>();
+
+        // string[] editions = new string[4];
+        // editions[0] = "REGULAR";
+        // editions[1] = "POLYCHROME";
+        // editions[2] = "REGULAR";
+        // editions[3] = "NEGATIVE";
+
+        // for (int i = 0; i < image.material.enabledKeywords.Length; i++)
+        // {
+        //     image.material.DisableKeyword(image.material.enabledKeywords[i]);
+        // }
+        // //image.material.EnableKeyword("_EDITION_" + editions[Random.Range(0, editions.Length)]);
+        // image.material.EnableKeyword("_EDITION_REGULAR");
     }
 
     // Update is called once per frame
@@ -50,7 +65,6 @@ public class ShaderCode : MonoBehaviour
 
 
         m.SetVector("_Rotation", new Vector2(ExtensionMethods.Remap(xAngle,-20,20,-.5f,.5f), ExtensionMethods.Remap(yAngle, -20, 20, -.5f, .5f)));
-
     }
 
     // Method to clamp an angle between a minimum and maximum value

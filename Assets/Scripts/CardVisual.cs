@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using Unity.Collections;
 using UnityEngine.UI;
 using Unity.VisualScripting;
+using UnityEngine.Analytics;
 
 public class CardVisual : MonoBehaviour
 {
@@ -18,6 +19,9 @@ public class CardVisual : MonoBehaviour
     private int savedIndex;
     Vector3 movementDelta;
     private Canvas canvas;
+
+    public string suit;
+    public string rank;
 
     [Header("References")]
     public Transform visualShadow;
@@ -48,7 +52,7 @@ public class CardVisual : MonoBehaviour
     [Header("Select Parameters")]
     [SerializeField] private float selectPunchAmount = 20;
 
-    [Header("Hober Parameters")]
+    [Header("Hover Parameters")]
     [SerializeField] private float hoverPunchAngle = 5;
     [SerializeField] private float hoverTransition = .15f;
 
@@ -99,12 +103,15 @@ public class CardVisual : MonoBehaviour
     void Update()
     {
         if (!initalize || parentCard == null) return;
-
-        HandPositioning();
-        SmoothFollow();
-        FollowRotation();
-        CardTilt();
-
+        
+        if (transform.parent.parent.name != "OtherPlayersCardVisuals") SmoothFollow();
+        else transform.position = cardTransform.position;
+        if (!parentCard.GetComponent<Card>().isPlayed && !parentCard.GetComponent<Card>().isDiscarded)
+        {
+            HandPositioning();
+            FollowRotation();
+            CardTilt();
+        }
     }
 
     private void HandPositioning()
@@ -148,59 +155,71 @@ public class CardVisual : MonoBehaviour
     }
 
     private void Select(Card card, bool state)
-    {
+    {   
+        if (parentCard.transform.parent.parent.parent.name == "OTHER PLAYERS CARDHOLDERS") return;
         DOTween.Kill(2, true);
         float dir = state ? 1 : 0;
-        shakeParent.DOPunchPosition(shakeParent.up * selectPunchAmount * dir, scaleTransition, 10, 1);
-        shakeParent.DOPunchRotation(Vector3.forward * (hoverPunchAngle/2), hoverTransition, 20, 1).SetId(2);
+        shakeParent?.DOPunchPosition(shakeParent.up * selectPunchAmount * dir, scaleTransition, 10, 1);
+        shakeParent?.DOPunchRotation(Vector3.forward * (hoverPunchAngle/2), hoverTransition, 20, 1).SetId(2);
 
         if(scaleAnimations)
-            transform.DOScale(scaleOnHover, scaleTransition).SetEase(scaleEase);
+            transform?.DOScale(scaleOnHover, scaleTransition).SetEase(scaleEase);
 
     }
 
     public void Swap(float dir = 1)
-    {
+    {   
+        if (parentCard.transform.parent.parent.parent.name == "OTHER PLAYERS CARDHOLDERS") return;
         if (!swapAnimations)
             return;
 
         DOTween.Kill(2, true);
-        shakeParent.DOPunchRotation((Vector3.forward * swapRotationAngle) * dir, swapTransition, swapVibrato, 1).SetId(3);
+        shakeParent?.DOPunchRotation((Vector3.forward * swapRotationAngle) * dir, swapTransition, swapVibrato, 1).SetId(3);
     }
 
     private void BeginDrag(Card card)
-    {
+    {   
+        if (parentCard.transform.parent.parent.parent.name == "OTHER PLAYERS CARDHOLDERS") return;
         if(scaleAnimations)
-            transform.DOScale(scaleOnSelect, scaleTransition).SetEase(scaleEase);
+            transform?.DOScale(scaleOnSelect, scaleTransition).SetEase(scaleEase);
 
         canvas.overrideSorting = true;
+        canvas.sortingOrder = 30;
     }
 
     private void EndDrag(Card card)
-    {
+    {   
+        if (parentCard.transform.parent.parent.parent.name == "OTHER PLAYERS CARDHOLDERS") return;
         canvas.overrideSorting = false;
-        transform.DOScale(1, scaleTransition).SetEase(scaleEase);
+        transform?.DOScale(1, scaleTransition).SetEase(scaleEase);
     }
 
     private void PointerEnter(Card card)
-    {
-        if(scaleAnimations)
-            transform.DOScale(scaleOnHover, scaleTransition).SetEase(scaleEase);
+    {      
+        if (parentCard.transform.parent.parent.parent.name == "OTHER PLAYERS CARDHOLDERS") return;
+        if (!parentCard.GetComponent<Card>().isPlayed && !parentCard.GetComponent<Card>().isDiscarded)
+        {
+            if(scaleAnimations)
+            transform?.DOScale(scaleOnHover, scaleTransition).SetEase(scaleEase);
 
-        DOTween.Kill(2, true);
-        shakeParent.DOPunchRotation(Vector3.forward * hoverPunchAngle, hoverTransition, 20, 1).SetId(2);
+            
+            DOTween.Kill(2, true);
+            shakeParent?.DOPunchRotation(Vector3.forward * hoverPunchAngle, hoverTransition, 20, 1).SetId(2);
+        }
     }
 
     private void PointerExit(Card card)
-    {
+    {   
+        if (parentCard.transform.parent.parent.parent.name == "OTHER PLAYERS CARDHOLDERS") return;
         if (!parentCard.wasDragged)
-            transform.DOScale(1, scaleTransition).SetEase(scaleEase);
+            transform?.DOScale(1, scaleTransition).SetEase(scaleEase);
     }
 
     private void PointerUp(Card card, bool longPress)
-    {
+    {   
+        if (parentCard.transform.parent.parent.parent.name == "OTHER PLAYERS CARDHOLDERS") return;
         if(scaleAnimations)
-            transform.DOScale(longPress ? scaleOnHover : scaleOnSelect, scaleTransition).SetEase(scaleEase);
+            transform?.DOScale(longPress ? scaleOnHover : scaleOnSelect, scaleTransition).SetEase(scaleEase);
         canvas.overrideSorting = false;
 
         visualShadow.localPosition = shadowDistance;
@@ -208,9 +227,10 @@ public class CardVisual : MonoBehaviour
     }
 
     private void PointerDown(Card card)
-    {
+    {   
+        if (parentCard.transform.parent.parent.parent.name == "OTHER PLAYERS CARDHOLDERS") return;
         if(scaleAnimations)
-            transform.DOScale(scaleOnSelect, scaleTransition).SetEase(scaleEase);
+            transform?.DOScale(scaleOnSelect, scaleTransition).SetEase(scaleEase);
             
         visualShadow.localPosition += (-Vector3.up * shadowOffset);
         shadowCanvas.overrideSorting = false;
