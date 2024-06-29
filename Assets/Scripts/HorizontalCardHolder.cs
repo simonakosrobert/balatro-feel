@@ -41,6 +41,7 @@ public class HorizontalCardHolder : MonoBehaviour
     [SerializeField] private GameObject inGameJokerCardDescription;
     [SerializeField] private GameObject inGameTarotCardDescription;
     [SerializeField] private GameObject StealBtn;
+    [SerializeField] private GameObject CardVisuals;
     [SerializeField] private bool tweenCardReturn = true;
     [HideInInspector] public GameObject Player;
     [HideInInspector] public int PlayerID;
@@ -176,64 +177,126 @@ public class HorizontalCardHolder : MonoBehaviour
 
     public void AddCards(bool random = true, string suitInput = null, string rankInput = null, string editionInput = "REGULAR", string idInput = "0")
     {   
-        try
-        {
-            int cardsInHandCount = Player.GetComponent<Player>().cardsInHandCount;
-            int handSize = Player.GetComponent<Player>().handSize;
+        int cardsInHandCount = Player.GetComponent<Player>().cardsInHandCount;
+        int handSize = Player.GetComponent<Player>().handSize;
 
-            if (random)
-            {   
+        int objectCount = 0;
+
+        if (random)
+        {   
+            try
+            {
                 for (int i = 0; cardsInHandCount < handSize; i++)
                 {   
+                    objectCount = 0;
+
+                    
                     //Deckssss
                     if (deck.Count == 0) break;
+                    objectCount++; //1
                     
                     int randomCard = rnd.Next(deckDict.Count); 
+                    objectCount++; //2
+
                     string[] suitRank = deckDict.ElementAt(randomCard).Key.Split(';')[0].Split(' ');
+                    objectCount++; //3
+
                     string edition = deckDict.ElementAt(randomCard).Value;
+                    objectCount++; //4
+
                     string suit = suitRank[0];
+                    objectCount++; //5
+
                     string rank = suitRank[1];
+                    objectCount++; //6
+
                     cardClone = Instantiate(slotPrefab, transform);
+                    objectCount++; //7
+
                     cardClone.tag = "Slot";
+                    objectCount++; //8
+
                     GameObject cardObject = cardClone.transform.GetChild(0).gameObject;
+                    objectCount++; //9
+
                     Card cardComponent = cardObject.GetComponent<Card>();
+                    objectCount++; //10
+
                     //Player.GetComponent<Player>().currentCardsInHand.Add($"{suit} {rank}");
                     cardComponent.canvas = cardObject.GetComponentInParent<Canvas>();
+                    objectCount++; //11
+
                     cardComponent.suit = suit;
+                    objectCount++; //12
+
                     cardComponent.rank = rank;
+                    objectCount++; //13
+
                     cardComponent.cardID = deckDict.ElementAt(randomCard).Key.Split(';')[1];
+                    objectCount++; //14
+
                     cardComponent.edition = deckDict.ElementAt(randomCard).Value;
-                    cardComponent.visualHandler = FindObjectOfType<VisualCardsHandler>();
+                    objectCount++; //15
+
+                    cardComponent.visualHandler = null;
+                    objectCount++; //16
+
                     cardComponent.cardSlot = cardComponent.transform.parent.gameObject;
+                    objectCount++; //17
+
                     cardComponent.cardVisualObj = Instantiate(cardComponent.cardVisualPrefab, cardComponent.visualHandler ? cardComponent.visualHandler.transform : cardComponent.canvas.transform);
+                    objectCount++; //18
+
                     cardComponent.cardVisual = cardComponent.cardVisualObj.GetComponent<CardVisual>();
+                    objectCount++; //19
                     //cardComponent.cardVisualObj.transform.SetParent(GameObject.Find("CardVisuals").transform);
-                    cardComponent.cardVisualObj.transform.SetParent(GameObject.Find("CardVisuals").transform);
+                    cardComponent.cardVisualObj.transform.SetParent(CardVisuals.transform);
+                    objectCount++; //20
                     //cardVisual.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
                     cardComponent.cardVisual.Initialize(cardComponent);
+                    objectCount++; //21
                     cardComponent.cardVisualObj.GetComponent<CardVisual>().suit = suit;
+                    objectCount++; //22
                     cardComponent.cardVisualObj.GetComponent<CardVisual>().rank = rank;
-                    
+                    objectCount++; //23
                     ShaderCode shaderCode = cardComponent.cardVisualObj.transform.GetChild(0).GetChild(1).GetChild(0).gameObject.GetComponent<ShaderCode>();
+                    objectCount++; //24
                     shaderCode.image = cardComponent.cardVisualObj.transform.GetChild(0).GetChild(1).GetChild(0).gameObject.GetComponent<Image>();
+                    objectCount++; //25
                     shaderCode.m = new Material(shaderCode.image.material);
+                    objectCount++; //26
                     shaderCode.image.material = shaderCode.m;
+                    objectCount++; //27
                     for (int j = 0; j < shaderCode.image.material.enabledKeywords.Length; j++)
                     {
                         shaderCode.image.material.DisableKeyword(shaderCode.image.material.enabledKeywords[j]);
                     }
+                    objectCount++; //28
                     shaderCode.image.material.EnableKeyword($"_EDITION_{cardComponent.edition}");
+                    objectCount++; //29
                     Player.GetComponent<Player>().cardsInHand.Add(cardClone);
+                    objectCount++; //30
                     if (cardComponent.edition != "NEGATIVE") Player.GetComponent<Player>().cardsInHandCount++;
+                    objectCount++; //31
                     Player.GetComponent<Player>().remainingDeck -= 1;
-
+                    objectCount++; //32
                     cardsInHandCount = Player.GetComponent<Player>().cardsInHandCount;
+                    objectCount++; //33
                     handSize = Player.GetComponent<Player>().handSize;
-
+                    objectCount++; //34
                     deckDict.Remove(deckDict.ElementAt(randomCard).Key);
+                    objectCount++; //35
+                    //Debug.Log(objectCount);
                 }
+            } 
+            catch (Exception e)
+            {   
+                StatusPopup.Instance.TriggerStatus($"Error RANDOM AT {objectCount}: {e}");
             }
-            else
+        }
+        else
+        {   
+            try
             {
                 cardClone = Instantiate(slotPrefab, transform);
                 cardClone.tag = "Slot";
@@ -258,7 +321,7 @@ public class HorizontalCardHolder : MonoBehaviour
                 }
                 else
                 {
-                    cardComponent.cardVisualObj.transform.SetParent(GameObject.Find("CardVisuals").transform);
+                    cardComponent.cardVisualObj.transform.SetParent(CardVisuals.transform);
                 }
                 ShaderCode shaderCode = cardComponent.cardVisualObj.transform.GetChild(0).GetChild(1).GetChild(0).gameObject.GetComponent<ShaderCode>();
                 shaderCode.image = cardComponent.cardVisualObj.transform.GetChild(0).GetChild(1).GetChild(0).gameObject.GetComponent<Image>();
@@ -275,28 +338,29 @@ public class HorizontalCardHolder : MonoBehaviour
 
                 //cardsInHandCount = Player.GetComponent<Player>().cardsInHandCount;
                 //handSize = Player.GetComponent<Player>().handSize;
-            }
-            
-            rect = GetComponent<RectTransform>();
-            cards = GetComponentsInChildren<Card>().ToList();
 
-            foreach (Card card in cards)
-            {
-                card.PointerEnterEvent.AddListener(CardPointerEnter);
-                card.PointerExitEvent.AddListener(CardPointerExit);
-                card.BeginDragEvent.AddListener(BeginDrag);
-                card.EndDragEvent.AddListener(EndDrag);
-                card.name = card.suit + " " + card.rank;
+            } catch (Exception e)
+            {   
+                StatusPopup.Instance.TriggerStatus($"Error OTHERPLAYERS: {e}");
             }
-            
-            //Gameplayinfo.GetComponent<GameplayInfo>().initiatedOrdering = true;
-            StartCoroutine(CardOrder());
-            //yield return new WaitForSeconds(0);
         }
-        catch (Exception e)
-        {   
-            StatusPopup.Instance.TriggerStatus($"Error: {e}");
+        
+        rect = GetComponent<RectTransform>();
+        cards = GetComponentsInChildren<Card>().ToList();
+
+        foreach (Card card in cards)
+        {
+            card.PointerEnterEvent.AddListener(CardPointerEnter);
+            card.PointerExitEvent.AddListener(CardPointerExit);
+            card.BeginDragEvent.AddListener(BeginDrag);
+            card.EndDragEvent.AddListener(EndDrag);
+            card.name = card.suit + " " + card.rank;
         }
+        
+        //Gameplayinfo.GetComponent<GameplayInfo>().initiatedOrdering = true;
+        StartCoroutine(CardOrder());
+        //yield return new WaitForSeconds(0);
+        
     }
 
     public void OnDisable()

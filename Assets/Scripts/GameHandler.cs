@@ -420,17 +420,14 @@ public class GameHandler : AttributesSync
             field.text = Mathf.Round(currentDisplayScore).ToString();
             if (gatheredScore)
             {
-                float currentColor = 0;
+                float currentColor;
 
-                currentColor = currentDisplayScore / 10;
+                currentColor = currentDisplayScore / 50;
                 if (currentColor > 255) currentColor = 255;
                 field.color = new Color32(255, (byte)(255 - currentColor), (byte)(255 - currentColor), 255);
                 float fontsize = 100 + currentDisplayScore / 70;
                 field.fontSize = fontsize < 150 ? fontsize : 150;
                 TrippyBG.GetComponent<Image>().color = new Color32((byte)currentColor, 60, 47, 100);
-
-                //field.transform.gameObject.transform.DOShakePosition(0.3f, 1, vibrato: (int)Mathf.Round(currentDisplayScore / 5));
-                //field.transform.gameObject.transform.DOPunchRotation(Vector3.forward * (currentDisplayScore / 300), .05f, 20, 0).SetId(3);
             }
             yield return null;
         }

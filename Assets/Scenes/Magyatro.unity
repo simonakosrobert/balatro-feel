@@ -4825,6 +4825,10 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5370792889985184238, guid: 90742c9f3c726b447be03d3b0c6bd07b, type: 3}
+      propertyPath: CardVisuals
+      value: 
+      objectReference: {fileID: 1267499924}
+    - target: {fileID: 5370792889985184238, guid: 90742c9f3c726b447be03d3b0c6bd07b, type: 3}
       propertyPath: JokerPrefab
       value: 
       objectReference: {fileID: 3926839200310456402, guid: b448d47e2742d5e4fb14eb3f8c40796d, type: 3}
